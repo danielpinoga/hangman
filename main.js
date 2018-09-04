@@ -1,49 +1,50 @@
 const letterArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('')
 const words = ['world']
 let guessesRemaining = 6
+let correctGuesses = 0
+let wordTemplate = ''
+let targetWord = ''
 
 $(() => {
   console.log("JS file starting")
-  let targetWord = words[0]
+  targetWord = words[0]
   console.log("word: ", targetWord)
 
-  setupBoard(targetWord)
-
-  $('#letters').on('click', ($event) => {
-    const clickedDiv = $event.target
-    const letterClicked = $event.target.outerText.toLowerCase()
-    $(clickedDiv).hide()
-    if (targetWord.includes(letterClicked)) {
-      console.log("GOTEM")
-    } else {
-      guessesRemaining--
-    }
-
-    updateGuesses()
-  })
-})
-
-const setupBoard = (targetWord) => {
+  // board setup
   updateGuesses()
-
-  let wordTemplate = ''
   for (let i = 0; i < targetWord.length; i++) {
-    wordTemplate += '_ '
+    wordTemplate += '_'
   }
   updateTargetWord(wordTemplate)
-
   letterArray.forEach(letter => {
     const letterDiv = `<div class='letter' id=${letter}>${letter}</div>`
     $('#letters').append(letterDiv)
   })
-}
 
-const updateTargetWord = (targetWord) => {
-  $('#targetWord').text(targetWord)
+  //letter click event
+  $('#letters').on('click', ($event) => {
+    $($event.target).hide()
+    const letterClicked = $event.target.outerText.toLowerCase()
+    const indexClicked = targetWord.indexOf(letterClicked)
+    if (indexClicked >= 0) {
+      console.log("Matched")
+      correctGuesses++
+    } else {
+      console.log("Missed")
+      guessesRemaining--
+    }
+    updateGuesses()
+  })
+})
+
+const updateTargetWord = () => {
+  $('#targetWord').text(wordTemplate)
 }
 
 const updateGuesses = () => {
-  if (guessesRemaining > 0) {
+  if (correctGuesses >= targetWord.length) {
+    $('body').text("YOU WIN")
+  } else if (guessesRemaining > 0) {
     $('#guessesRemaining').text(`Guesses Remaining: ${guessesRemaining}`)
   } else {
     $('body').text("GAME OVER")

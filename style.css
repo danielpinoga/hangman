@@ -10,3 +10,7 @@ body {
 .letter {
   padding: 3px;
 }
+
+#targetWord {
+  letter-spacing: 10px;
+}
