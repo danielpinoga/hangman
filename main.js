@@ -2,7 +2,7 @@ const letterArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('')
 const words = ['world']
 let guessesRemaining = 6
 let correctGuesses = 0
-let wordTemplate = ''
+let matchedIndexes = []
 let targetWord = ''
 
 $(() => {
@@ -12,10 +12,7 @@ $(() => {
 
   // board setup
   updateGuesses()
-  for (let i = 0; i < targetWord.length; i++) {
-    wordTemplate += '_'
-  }
-  updateTargetWord(wordTemplate)
+  updateTargetWord()
   letterArray.forEach(letter => {
     const letterDiv = `<div class='letter' id=${letter}>${letter}</div>`
     $('#letters').append(letterDiv)
@@ -28,7 +25,9 @@ $(() => {
     const indexClicked = targetWord.indexOf(letterClicked)
     if (indexClicked >= 0) {
       console.log("Matched")
+      matchedIndexes.push(indexClicked)
       correctGuesses++
+      updateTargetWord()
     } else {
       console.log("Missed")
       guessesRemaining--
@@ -38,6 +37,14 @@ $(() => {
 })
 
 const updateTargetWord = () => {
+  let wordTemplate = ''
+  for (let i = 0; i < targetWord.length; i++) {
+    if (matchedIndexes.includes(i)) {
+      wordTemplate += targetWord[i]
+    } else {
+      wordTemplate += '_'
+    }
+  }
   $('#targetWord').text(wordTemplate)
 }
 
