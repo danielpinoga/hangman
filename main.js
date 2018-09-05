@@ -1,41 +1,59 @@
 const letterArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('')
-const words = ['world']
+const words = ['xtnvk']
 let guessesRemaining = 6
 let correctGuesses = 0
 let matchedIndexes = []
 let targetWord = ''
 
 $(() => {
-  console.log("JS file starting")
   targetWord = words[0]
   console.log("word: ", targetWord)
 
-  // board setup
-  updateGuesses()
-  updateTargetWord()
-  letterArray.forEach(letter => {
-    const letterDiv = `<div class='letter' id=${letter}>${letter}</div>`
-    $('#letters').append(letterDiv)
-  })
+  setupBoard()
 
   //letter click event
   $('#letters').on('click', ($event) => {
     $($event.target).hide()
     const letterClicked = $event.target.outerText.toLowerCase()
-    const indexClicked = targetWord.indexOf(letterClicked)
-    if (indexClicked >= 0) {
-      console.log("Matched")
-      matchedIndexes.push(indexClicked)
-      correctGuesses++
-      updateTargetWord()
-    } else {
-      console.log("Missed")
-      guessesRemaining--
-    }
+    let lastIndexClicked = -1
+    let firstIteration = true
+    do {
+      const indexClicked = targetWord.indexOf(letterClicked, lastIndexClicked + 1)
+      lastIndexClicked = indexClicked
+
+      if (indexClicked >= 0) {
+        matchedIndexes.push(indexClicked)
+        correctGuesses++
+        updateTargetWord()
+      } else if (firstIteration) {
+        guessesRemaining--
+      }
+      firstIteration = false
+    } while (lastIndexClicked >= 0)
+
     updateGuesses()
   })
 })
 
+const setupBoard = () => {
+  resetGuesses()
+  resetTargetWord()
+  resetLetters()
+}
+
+const resetLetters = () => {
+  $('#letters').text = ''
+  letterArray.forEach(letter => {
+    const letterDiv = `<div class='letter' id=${letter}>${letter}</div>`
+    $('#letters').append(letterDiv)
+  })
+}
+
+const resetTargetWord = () => {
+  const randomInt = Math.floor(Math.random() * words.length)
+  targetWord = words[randomInt]
+  updateTargetWord()
+}
 const updateTargetWord = () => {
   let wordTemplate = ''
   for (let i = 0; i < targetWord.length; i++) {
@@ -46,6 +64,11 @@ const updateTargetWord = () => {
     }
   }
   $('#targetWord').text(wordTemplate)
+}
+
+const resetGuesses = () => {
+  guessesRemaining = 6
+  updateGuesses()
 }
 
 const updateGuesses = () => {
