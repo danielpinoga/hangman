@@ -1,82 +1,93 @@
-const letterArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('')
-const words = ['xtnvk']
-let guessesRemaining = 6
-let correctGuesses = 0
-let matchedIndexes = []
-let targetWord = ''
-
-$(() => {
-  targetWord = words[0]
-  console.log("word: ", targetWord)
-
-  setupBoard()
-
-  //letter click event
-  $('#letters').on('click', ($event) => {
-    $($event.target).hide()
-    const letterClicked = $event.target.outerText.toLowerCase()
+const game = {
+  allLetters: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(''),
+  words: ['APPLE', 'BANANA', 'CHERRY', 'DOUGHNUT'],
+  guessesRemaining: 1,
+  correctGuesses: 0,
+  matchedIndexes: [],
+  targetWord: 'a',
+  lastLetterClicked: 'a',
+  setupBoard: function () {
+    this.guessesRemaining = 6
+    this.correctGuesses = 0
+    this.matchedIndexes = []
+    this.renderGameBoard()
+    this.renderIncorrectGuesses()
+    this.randomizeTargetWord()
+    this.renderTargetWord()
+    this.renderAllLetters()
+  },
+  renderGameBoard: function () {
+    const gameBoard = `
+    <div id='targetWord'/>
+    <div id='letters'/>
+    <div id='guessesRemaining'/>`
+    $('#gameBoard').text('').append(gameBoard)
+  },
+  renderAllLetters: function () {
+    $('#letters').text = ''
+    this.allLetters.forEach(letter => {
+      const letterDiv = `<div class='letter' id=${letter}>${letter}</div>`
+      $('#letters').append(letterDiv)
+    })
+  },
+  randomizeTargetWord: function () {
+    const randomInt = Math.floor(Math.random() * this.words.length)
+    this.targetWord = this.words[randomInt]
+    console.log("word: ", this.targetWord)
+  },
+  renderTargetWord: function () {
+    let wordTemplate = ''
+    for (let i = 0; i < this.targetWord.length; i++) {
+      if (this.matchedIndexes.includes(i)) {
+        wordTemplate += this.targetWord[i]
+      } else {
+        wordTemplate += '_'
+      }
+    }
+    $('#targetWord').text(wordTemplate)
+  },
+  renderIncorrectGuesses: function () {
+    $('#guessesRemaining').text(`Guesses Remaining: ${this.guessesRemaining}`)
+  },
+  checkForEndGame: function () {
+    if (this.correctGuesses >= this.targetWord.length) {
+      $('#gameBoard').text("YOU WIN")
+    } else if (this.guessesRemaining <= 0) {
+      $('#gameBoard').text("GAME OVER")
+    }
+  },
+  handleClickedLetter: function (eventTarget) {
+    $(eventTarget).hide()
+    this.lastLetterClicked = eventTarget.outerText
+    this.findAllInTargetWord()
+    this.checkForEndGame()
+    this.renderIncorrectGuesses()
+  },
+  findAllInTargetWord: function () {
     let lastIndexClicked = -1
     let firstIteration = true
     do {
-      const indexClicked = targetWord.indexOf(letterClicked, lastIndexClicked + 1)
+      const indexClicked = this.targetWord.indexOf(this.lastLetterClicked, lastIndexClicked + 1)
       lastIndexClicked = indexClicked
 
       if (indexClicked >= 0) {
-        matchedIndexes.push(indexClicked)
-        correctGuesses++
-        updateTargetWord()
+        this.matchedIndexes.push(indexClicked)
+        this.correctGuesses++
+        this.renderTargetWord()
       } else if (firstIteration) {
-        guessesRemaining--
+        this.guessesRemaining--
       }
       firstIteration = false
     } while (lastIndexClicked >= 0)
+  }
+}
 
-    updateGuesses()
+$(() => {
+  game.setupBoard()
+  $('#gameBoard').on('click', '#letters', ($event) => {
+    game.handleClickedLetter($event.target)
+  })
+  $('#reset').on('click', () => {
+    game.setupBoard()
   })
 })
-
-const setupBoard = () => {
-  resetGuesses()
-  resetTargetWord()
-  resetLetters()
-}
-
-const resetLetters = () => {
-  $('#letters').text = ''
-  letterArray.forEach(letter => {
-    const letterDiv = `<div class='letter' id=${letter}>${letter}</div>`
-    $('#letters').append(letterDiv)
-  })
-}
-
-const resetTargetWord = () => {
-  const randomInt = Math.floor(Math.random() * words.length)
-  targetWord = words[randomInt]
-  updateTargetWord()
-}
-const updateTargetWord = () => {
-  let wordTemplate = ''
-  for (let i = 0; i < targetWord.length; i++) {
-    if (matchedIndexes.includes(i)) {
-      wordTemplate += targetWord[i]
-    } else {
-      wordTemplate += '_'
-    }
-  }
-  $('#targetWord').text(wordTemplate)
-}
-
-const resetGuesses = () => {
-  guessesRemaining = 6
-  updateGuesses()
-}
-
-const updateGuesses = () => {
-  if (correctGuesses >= targetWord.length) {
-    $('body').text("YOU WIN")
-  } else if (guessesRemaining > 0) {
-    $('#guessesRemaining').text(`Guesses Remaining: ${guessesRemaining}`)
-  } else {
-    $('body').text("GAME OVER")
-  }
-}

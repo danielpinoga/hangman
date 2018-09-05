@@ -1,16 +1,40 @@
 body {
   background: yellowgreen;
+  display: flex;
+  align-items: center;
+  flex-direction: column
 }
 
 #letters {
   display: flex;
   flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 80%;
+  margin: 15px;
 }
 
 .letter {
-  padding: 3px;
+  padding: 5px;
 }
 
 #targetWord {
   letter-spacing: 10px;
+  font-size: 20px;
+  margin: 20px;
+}
+
+#gameBoard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40vw;
+  border: 2px solid;
+  margin: 20px;
+  padding: 20px;
+}
+
+#reset {
+  border: 1px solid;
+  padding: 6px;
 }
